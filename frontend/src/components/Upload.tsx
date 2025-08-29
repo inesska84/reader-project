@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure PDF.js worker - using a reliable CDN
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.54/build/pdf.worker.min.js';
+// Disable PDF.js worker to avoid loading issues (will be slower but more reliable)
+pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 interface ProcessedBook {
   id: string;
@@ -56,9 +56,7 @@ const Upload: React.FC = () => {
       
       setProcessingStatus('Loading PDF document...');
       const pdf = await pdfjsLib.getDocument({ 
-        data: arrayBuffer,
-        cMapUrl: 'https://unpkg.com/pdfjs-dist@5.4.54/cmaps/',
-        cMapPacked: true
+        data: arrayBuffer
       }).promise;
       
       console.log('PDF loaded successfully, pages:', pdf.numPages);
@@ -107,7 +105,32 @@ const Upload: React.FC = () => {
       
     } catch (error) {
       console.error('Error in processPDF:', error);
-      throw new Error(`Failed to process PDF: ${error.message}`);
+      
+      // If PDF.js fails completely, create a basic book entry
+      console.log('PDF.js failed, creating basic book entry');
+      const bookId = Date.now().toString();
+      const title = file.name.replace('.pdf', '').replace(/[-_]/g, ' ');
+      
+      return {
+        id: bookId,
+        title: title,
+        author: 'Unknown Author',
+        fileType: 'pdf',
+        pageCount: 1,
+        pages: [`[PDF Upload Error] This PDF could not be processed automatically. 
+        
+File: ${file.name}
+Size: ${(file.size / 1024 / 1024).toFixed(2)} MB
+
+The PDF was uploaded but text extraction failed. This could be due to:
+- Password-protected PDF
+- Scanned images (no text layer)
+- Corrupted file
+- Complex formatting
+
+You can still view this as a placeholder in your library.`],
+        uploadDate: new Date()
+      };
     }
   };
 
@@ -130,7 +153,12 @@ const Upload: React.FC = () => {
         
         setProcessingStatus('');
         setIsProcessing(false);
-        alert(`"${processedBook.title}" uploaded successfully!\n${processedBook.pageCount} pages processed.`);
+        
+        if (processedBook.pageCount === 1 && processedBook.pages[0].includes('[PDF Upload Error]')) {
+          alert(`"${processedBook.title}" uploaded as placeholder!\n\nText extraction failed, but the file is saved in your library. You may need to try a different PDF file for full text extraction.`);
+        } else {
+          alert(`"${processedBook.title}" uploaded successfully!\n${processedBook.pageCount} pages processed.`);
+        }
         
         // Navigate to library after successful upload
         setTimeout(() => {
