@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.54/pdf.worker.min.js`;
+// Configure PDF.js worker - using a reliable CDN
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.54/build/pdf.worker.min.js';
 
 interface ProcessedBook {
   id: string;
@@ -47,43 +47,68 @@ const Upload: React.FC = () => {
   };
 
   const processPDF = async (file: File): Promise<ProcessedBook> => {
+    console.log('Starting PDF processing for file:', file.name, 'Size:', file.size);
     setProcessingStatus('Reading PDF file...');
     
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-    const pages: string[] = [];
-    
-    setProcessingStatus(`Extracting text from ${pdf.numPages} pages...`);
-    
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      setProcessingStatus(`Processing page ${pageNum} of ${pdf.numPages}...`);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      console.log('PDF file read into array buffer, size:', arrayBuffer.byteLength);
       
-      const page = await pdf.getPage(pageNum);
-      const textContent = await page.getTextContent();
+      setProcessingStatus('Loading PDF document...');
+      const pdf = await pdfjsLib.getDocument({ 
+        data: arrayBuffer,
+        cMapUrl: 'https://unpkg.com/pdfjs-dist@5.4.54/cmaps/',
+        cMapPacked: true
+      }).promise;
       
-      // Extract text from the page
-      const pageText = textContent.items
-        .map((item: any) => item.str)
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+      console.log('PDF loaded successfully, pages:', pdf.numPages);
+      const pages: string[] = [];
       
-      pages.push(pageText);
+      setProcessingStatus(`Extracting text from ${pdf.numPages} pages...`);
+      
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        setProcessingStatus(`Processing page ${pageNum} of ${pdf.numPages}...`);
+        
+        try {
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          
+          // Extract text from the page
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          pages.push(pageText || `[Page ${pageNum} - No text content]`);
+          console.log(`Page ${pageNum} processed, text length:`, pageText.length);
+          
+        } catch (pageError) {
+          console.error(`Error processing page ${pageNum}:`, pageError);
+          pages.push(`[Page ${pageNum} - Error extracting text]`);
+        }
+      }
+      
+      // Generate a simple ID and extract title from filename
+      const bookId = Date.now().toString();
+      const title = file.name.replace('.pdf', '').replace(/[-_]/g, ' ');
+      
+      console.log('PDF processing completed successfully');
+      
+      return {
+        id: bookId,
+        title: title,
+        author: 'Unknown Author',
+        fileType: 'pdf',
+        pageCount: pages.length,
+        pages: pages,
+        uploadDate: new Date()
+      };
+      
+    } catch (error) {
+      console.error('Error in processPDF:', error);
+      throw new Error(`Failed to process PDF: ${error.message}`);
     }
-    
-    // Generate a simple ID and extract title from filename
-    const bookId = Date.now().toString();
-    const title = file.name.replace('.pdf', '').replace(/[-_]/g, ' ');
-    
-    return {
-      id: bookId,
-      title: title,
-      author: 'Unknown Author', // Could be enhanced to extract from PDF metadata
-      fileType: 'pdf',
-      pageCount: pages.length,
-      pages: pages,
-      uploadDate: new Date()
-    };
   };
 
   const saveBookToLibrary = (book: ProcessedBook) => {
@@ -114,9 +139,10 @@ const Upload: React.FC = () => {
         
       } catch (error) {
         console.error('Error processing PDF:', error);
+        console.error('Error details:', error.message);
         setIsProcessing(false);
         setProcessingStatus('');
-        alert('Error processing PDF file. Please try again.');
+        alert(`Error processing PDF file: ${error.message}\n\nPlease try again with a different PDF file.`);
       }
     } else if (fileType === 'epub') {
       alert('EPUB support coming soon! Please use PDF files for now.');
