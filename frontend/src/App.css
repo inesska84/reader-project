@@ -1,0 +1,349 @@
+/* App Container */
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Upload Screen Styles */
+.upload-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: center;
+  color: white;
+}
+
+.upload-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  font-weight: 600;
+}
+
+.upload-area {
+  background: rgba(255, 255, 255, 0.1);
+  border: 3px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 60px 20px;
+  margin: 40px 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-area:hover,
+.upload-area.drag-active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.02);
+}
+
+.upload-label {
+  cursor: pointer;
+  display: block;
+}
+
+.upload-content {
+  color: white;
+}
+
+.upload-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.upload-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.upload-content p {
+  opacity: 0.8;
+  font-size: 1.1rem;
+}
+
+.actions button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px;
+}
+
+.actions button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Library Screen Styles */
+.library-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  color: white;
+}
+
+.library-container h1 {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.library-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.library-header button {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.library-header button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 20px 0;
+}
+
+.book-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.book-cover {
+  position: relative;
+  text-align: center;
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.file-type-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ff6b6b;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.book-info h3 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.author {
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+  margin-bottom: 5px;
+}
+
+.pages {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.empty-library {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-library p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.empty-library button {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Reader Screen Styles */
+.reader-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.reader-header {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.reader-header button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reader-header button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.reader-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.reader-controls select {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 15px;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.translate-btn {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24) !important;
+  font-weight: 600;
+}
+
+.translate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reader-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: 500px;
+}
+
+.text-panel {
+  padding: 30px;
+  border-right: 1px solid #eee;
+}
+
+.text-panel:last-child {
+  border-right: none;
+}
+
+.text-panel h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.text-content {
+  line-height: 1.8;
+  font-size: 1.1rem;
+  color: #444;
+}
+
+.text-content p {
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+.original {
+  background: #fafafa;
+}
+
+.translated {
+  background: #f0f8ff;
+}
+
+.reader-navigation {
+  background: #f8f9fa;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eee;
+}
+
+.reader-navigation button {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reader-navigation button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.reader-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reader-navigation span {
+  font-weight: 600;
+  color: #666;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .reader-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .reader-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .books-grid {
+    grid-template-columns: 1fr;
+  }
+}
