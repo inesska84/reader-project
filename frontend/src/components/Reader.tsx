@@ -1,30 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
-interface ReaderProps {
-  bookId?: string;
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  fileType: 'pdf' | 'epub';
+  pageCount: number;
+  pages: string[];
+  uploadDate: Date;
 }
 
-// Mock book content - later we'll load real PDF/EPUB content
-const mockContent = {
-  originalText: `Chapter 1: The Beginning
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.`,
-  
-  translatedText: `[Translation will appear here after clicking "Translate Page"]
-
-Click the translate button to see AI translation of the current page.`
-};
-
-const Reader: React.FC<ReaderProps> = ({ bookId }) => {
+const Reader: React.FC = () => {
+  const { bookId } = useParams<{ bookId: string }>();
+  const [book, setBook] = useState<Book | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [originalText, setOriginalText] = useState(mockContent.originalText);
-  const [translatedText, setTranslatedText] = useState(mockContent.translatedText);
+  const [originalText, setOriginalText] = useState('');
+  const [translatedText, setTranslatedText] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
   const [targetLanguage, setTargetLanguage] = useState('Polish');
+
+  useEffect(() => {
+    // Load book from localStorage
+    if (bookId) {
+      const storedBooks = localStorage.getItem('bookLibrary');
+      if (storedBooks) {
+        const books: Book[] = JSON.parse(storedBooks);
+        const foundBook = books.find(b => b.id === bookId);
+        if (foundBook) {
+          setBook(foundBook);
+          setOriginalText(foundBook.pages[0] || 'No content available');
+          setTranslatedText('[Translation will appear here after clicking "Translate Page"]');
+        }
+      }
+    }
+  }, [bookId]);
+
+  useEffect(() => {
+    // Update text when page changes
+    if (book && book.pages[currentPage - 1]) {
+      setOriginalText(book.pages[currentPage - 1]);
+      setTranslatedText('[Translation will appear here after clicking "Translate Page"]');
+    }
+  }, [currentPage, book]);
 
   const translatePage = async () => {
     setIsTranslating(true);
@@ -44,13 +62,39 @@ Nemo enim ipsam voluptatem - tutaj widzimy jak AI zachowuje strukturę paragraf�
     }, 2000);
   };
 
+  if (!book) {
+    return (
+      <div style={{ padding: '20px', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', color: 'white' }}>
+          <h2>📚 Loading Book...</h2>
+          <p>Please wait while we load your book.</p>
+          <button 
+            onClick={() => window.location.href = '/library'}
+            style={{ 
+              background: 'rgba(255,255,255,0.2)', 
+              color: 'white', 
+              border: '1px solid rgba(255,255,255,0.3)', 
+              padding: '10px 20px', 
+              borderRadius: '20px', 
+              cursor: 'pointer',
+              marginTop: '20px'
+            }}
+          >
+            ← Back to Library
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="reader-container">
+    <div style={{ padding: '20px', minHeight: '100vh' }}>
+      <div className="reader-container">
       <div className="reader-header">
         <button onClick={() => window.location.href = '/library'}>
           ← Back to Library
         </button>
-        <h2>Book Title - Page {currentPage}</h2>
+        <h2>{book ? `${book.title} - Page ${currentPage}` : 'Loading...'}</h2>
         <div className="reader-controls">
           <select 
             value={targetLanguage} 
@@ -98,14 +142,15 @@ Nemo enim ipsam voluptatem - tutaj widzimy jak AI zachowuje strukturę paragraf�
         >
           ← Previous Page
         </button>
-        <span>Page {currentPage} of 150</span>
+        <span>Page {currentPage} of {book?.pageCount || 0}</span>
         <button 
           onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === 150}
+          disabled={!book || currentPage >= book.pageCount}
         >
           Next Page →
         </button>
       </div>
+    </div>
     </div>
   );
 };

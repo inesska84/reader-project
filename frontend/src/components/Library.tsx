@@ -1,24 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-// Mock data for now - later we'll use real uploaded books
-const mockBooks = [
-  {
-    id: '1',
-    title: 'Sample Book',
-    author: 'Test Author',
-    fileType: 'pdf' as const,
-    pageCount: 150
-  },
-  {
-    id: '2', 
-    title: 'Another Book',
-    author: 'Another Author',
-    fileType: 'epub' as const,
-    pageCount: 200
-  }
-];
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  fileType: 'pdf' | 'epub';
+  pageCount: number;
+  pages: string[];
+  uploadDate: Date;
+}
 
 const Library: React.FC = () => {
+  const [books, setBooks] = useState<Book[]>([]);
+
+  useEffect(() => {
+    // Load books from localStorage
+    const storedBooks = localStorage.getItem('bookLibrary');
+    if (storedBooks) {
+      const parsedBooks = JSON.parse(storedBooks);
+      setBooks(parsedBooks);
+    }
+  }, []);
+
   const openBook = (bookId: string) => {
     window.location.href = `/reader/${bookId}`;
   };
@@ -34,7 +37,7 @@ const Library: React.FC = () => {
       </div>
 
       <div className="books-grid">
-        {mockBooks.length === 0 ? (
+        {books.length === 0 ? (
           <div className="empty-library">
             <p>No books uploaded yet</p>
             <button onClick={() => window.location.href = '/'}>
@@ -42,7 +45,7 @@ const Library: React.FC = () => {
             </button>
           </div>
         ) : (
-          mockBooks.map((book) => (
+          books.map((book) => (
             <div key={book.id} className="book-card" onClick={() => openBook(book.id)}>
               <div className="book-cover">
                 <div className="file-type-badge">{book.fileType.toUpperCase()}</div>
@@ -52,6 +55,9 @@ const Library: React.FC = () => {
                 <h3>{book.title}</h3>
                 <p className="author">by {book.author}</p>
                 <p className="pages">{book.pageCount} pages</p>
+                <p className="upload-date">
+                  Uploaded: {new Date(book.uploadDate).toLocaleDateString()}
+                </p>
               </div>
             </div>
           ))
